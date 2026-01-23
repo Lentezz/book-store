@@ -4,6 +4,7 @@ import com.lentez.bookstore.dto.book.BookDto;
 import com.lentez.bookstore.dto.book.CreateBookRequestDto;
 import com.lentez.bookstore.exception.EntityNotFoundException;
 import com.lentez.bookstore.mapper.BookMapper;
+import com.lentez.bookstore.mapper.CreateBookRequestMapper;
 import com.lentez.bookstore.repository.book.BookRepository;
 import com.lentez.bookstore.service.BookService;
 import java.util.List;
@@ -15,13 +16,14 @@ import org.springframework.stereotype.Service;
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
+    private final CreateBookRequestMapper createBookRequestMapper;
 
     @Override
     public BookDto createBook(CreateBookRequestDto createBookRequestDto) {
         return bookMapper
-                .toBookDto(
-                        bookRepository.save(
-                                createBookRequestDto.toBook()
+                .toBookDto(bookRepository
+                        .save(createBookRequestMapper
+                                .toBook(createBookRequestDto)
                         )
                 );
     }
