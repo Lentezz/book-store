@@ -4,6 +4,7 @@ import com.lentez.bookstore.exception.DatabaseOperationException;
 import com.lentez.bookstore.model.Book;
 import com.lentez.bookstore.repository.book.BookRepository;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -44,5 +45,16 @@ public class BookRepositoryImpl implements BookRepository {
             throw new DatabaseOperationException("Unable to find all books", e);
         }
         return books;
+    }
+
+    @Override
+    public Optional<Book> findById(Long id) {
+        try (Session session = sessionFactory.openSession()) {
+            session.beginTransaction();
+            return Optional.ofNullable(session.createQuery("from Book where id = :id", Book.class)
+                    .setParameter("id", id).uniqueResult());
+        } catch (Exception e) {
+            throw new DatabaseOperationException("Unable to find book with id " + id, e);
+        }
     }
 }

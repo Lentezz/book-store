@@ -1,6 +1,10 @@
 package com.lentez.bookstore.service.impl;
 
-import com.lentez.bookstore.model.Book;
+import com.lentez.bookstore.dto.book.BookDto;
+import com.lentez.bookstore.dto.book.CreateBookRequestDto;
+import com.lentez.bookstore.exception.EntityNotFoundException;
+import com.lentez.bookstore.mapper.BookMapper;
+import com.lentez.bookstore.mapper.CreateBookRequestMapper;
 import com.lentez.bookstore.repository.book.BookRepository;
 import com.lentez.bookstore.service.BookService;
 import java.util.List;
@@ -11,14 +15,38 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
+    private final CreateBookRequestMapper createBookRequestMapper;
 
     @Override
-    public Book save(Book book) {
-        return bookRepository.save(book);
+    public BookDto createBook(CreateBookRequestDto createBookRequestDto) {
+        return bookMapper
+                .toBookDto(bookRepository
+                        .save(createBookRequestMapper
+                                .toBook(createBookRequestDto)
+                        )
+                );
     }
 
     @Override
-    public List<Book> findAll() {
-        return bookRepository.findAll();
+    public List<BookDto> findAll() {
+        return bookRepository
+                .findAll()
+                .stream()
+                .map(bookMapper::toBookDto)
+                .toList();
+    }
+
+    @Override
+    public BookDto findById(Long id) {
+        return bookMapper.toBookDto(
+                bookRepository
+                        .findById(id)
+                        .orElseThrow(
+                                () -> new EntityNotFoundException(
+                                        "Book with id = " + id + " not found"
+                                )
+                        )
+        );
     }
 }
