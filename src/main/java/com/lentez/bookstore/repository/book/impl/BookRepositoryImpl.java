@@ -49,14 +49,12 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Optional<Book> findById(Long id) {
-        Book book;
         try (Session session = sessionFactory.openSession()) {
             session.beginTransaction();
-            book = session.createQuery("from Book where id = :id", Book.class)
-                    .setParameter("id", id).uniqueResult();
+            return Optional.ofNullable(session.createQuery("from Book where id = :id", Book.class)
+                    .setParameter("id", id).uniqueResult());
         } catch (Exception e) {
             throw new DatabaseOperationException("Unable to find book with id " + id, e);
         }
-        return Optional.ofNullable(book);
     }
 }
